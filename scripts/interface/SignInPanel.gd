@@ -1,8 +1,8 @@
-extends PanelContainer
+extends Control
 
 
 @export_category('SignIn')
-@export var sign_in_panel : PanelContainer
+@export var sign_in_panel : Control
 @export var sign_in_email_line : LineEdit
 @export var sign_in_pass_line : LineEdit
 @export var sign_in_submit_button : Button
@@ -13,11 +13,11 @@ var email_regex = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}
 
 
 @export_category('Backend')
-@export var api_endpoint : String = 'http://127.0.0.1'
+@export var api_endpoint : String = 'http://127.0.0.1:8090'
 
 
 # var ConnectionStatusEnum = preload('res://scripts/utils/enums/auth/auth_enum.gd').new()
-var SignInModel: Script = preload('res://scripts/utils/models/auth/sign_in_model.gd')
+var SignInModelLocal: Script = preload('res://scripts/utils/models/auth/sign_in_model.gd')
 
 
 func _on_sign_in_line_text_changed(_new_text: String) -> void:
@@ -52,14 +52,14 @@ func _on_submit_sign_in_button_pressed() -> void:
 # Esta função é chamada no servidor quando um cliente faz uma solicitação de login
 @rpc('any_peer', 'call_remote', 'reliable')
 func _on_request_sign_in(sign_in_model_dict: Dictionary):
-    var sender_id = multiplayer.multiplayer_peer.get_unique_id()
-    
+    var sender_id = multiplayer.get_remote_sender_id()
+
     # Desabilita o botão de login para evitar que o usuário clique novamente
     sign_in_submit_button.disabled = true
-    
+
     # Converte o dicionário de volta para um objeto SignInModel
     var sign_in_model = SignInModel.from_dict(sign_in_model_dict) as SignInModel
-    
+
     # Define a URL, cabeçalhos e corpo da solicitação HTTP
     var url = api_endpoint + "/api/collections/users/auth-with-password"
     var headers_dict = {"Content-Type": "application/json"}
@@ -82,15 +82,15 @@ func _on_request_sign_in(sign_in_model_dict: Dictionary):
         var response_code = data[1]
         var response_body = (data[3] as PackedByteArray).get_string_from_utf8()
 
-        # Faz uma chamada RPC para a função _on_request_sign_in_completed com o sender_id e a resposta HTTP como argumentos
-        _on_request_sign_in_completed.rpc_id(sender_id, response_code, response_body)
+        # Passa sender_id como um argumento para _on_request_sign_in_completed
+        _on_request_sign_in_completed.rpc_id(sender_id, response_code, response_body, sender_id)
 
     # Reativa o botão de login
     sign_in_submit_button.disabled = false
 
 
-@rpc("authority", "reliable")
-func _on_request_sign_in_completed(sender_id: int, response_code: int, _response_body: String):
+@rpc("authority","reliable")
+func _on_request_sign_in_completed(response_code: int, _response_body: String, sender_id: int):
 
     # Se o código de resposta for 200, envia uma mensagem de sucesso para o cliente
     if response_code == 200:
@@ -104,7 +104,7 @@ func _on_request_sign_in_completed(sender_id: int, response_code: int, _response
 
 
 # Esta função é chamada quando o cliente recebe a resposta do servidor
-@rpc("authority", "reliable")
+@rpc("authority", 'call_local' ,"reliable")
 func _on_sign_in_response(success: bool, message: String):
     # Se a autenticação foi bem-sucedida, imprime uma mensagem de sucesso
     if success:
@@ -112,16 +112,3 @@ func _on_sign_in_response(success: bool, message: String):
     # Se a autenticação falhou, imprime uma mensagem de erro
     else:
         print("Falha na autenticação: " + message)
-
-
-func _on_submit_sign_in_button_3_pressed():
-    var peer = ENetMultiplayerPeer.new()
-    peer.create_client('127.0.0.1', 8082)
-    multiplayer.multiplayer_peer = peer
-    print('cliente nessa porra')
-
-func _on_submit_sign_in_button_4_pressed():
-    var peer = ENetMultiplayerPeer.new()
-    peer.create_server(8082, 5)
-    multiplayer.multiplayer_peer = peer
-    sign_in_panel.visible = false

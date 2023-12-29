@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://45d1ywjto31w"]
+[gd_scene load_steps=4 format=3 uid="uid://45d1ywjto31w"]
 
 [ext_resource type="Script" path="res://scripts/interface/SignInPanel.gd" id="1_ofkox"]
+[ext_resource type="Script" path="res://scripts/interface/BootPanel.gd" id="1_tbiqa"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_786kf"]
 
@@ -12,15 +13,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="AuthUI" type="Control" parent="."]
+[node name="BootUI" type="Control" parent="." node_paths=PackedStringArray("boot_panel", "auth_panel")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_tbiqa")
+boot_panel = NodePath(".")
+auth_panel = NodePath("../AuthUI")
 
-[node name="SignInPanel" type="PanelContainer" parent="AuthUI" node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button")]
+[node name="SignInPanel" type="PanelContainer" parent="BootUI"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -33,11 +37,58 @@ offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="SignInMargin" type="MarginContainer" parent="BootUI/SignInPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="SignInVbox" type="VBoxContainer" parent="BootUI/SignInPanel/SignInMargin"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="SubmitSignInButton3" type="Button" parent="BootUI/SignInPanel/SignInMargin/SignInVbox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
+text = "Cliente
+"
+
+[node name="SubmitSignInButton4" type="Button" parent="BootUI/SignInPanel/SignInMargin/SignInVbox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
+text = "Servidor"
+
+[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_ofkox")
 sign_in_panel = NodePath(".")
-sign_in_email_line = NodePath("SignInMargin/SignInVbox/EmailSignInLine")
-sign_in_pass_line = NodePath("SignInMargin/SignInVbox/PasswordSignInLine")
-sign_in_submit_button = NodePath("SignInMargin/SignInVbox/SubmitSignInButton")
+sign_in_email_line = NodePath("SignInPanel/SignInMargin/SignInVbox/EmailSignInLine")
+sign_in_pass_line = NodePath("SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine")
+sign_in_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton")
+
+[node name="SignInPanel" type="PanelContainer" parent="AuthUI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="SignInMargin" type="MarginContainer" parent="AuthUI/SignInPanel"]
 layout_mode = 2
@@ -64,27 +115,15 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Acessar"
 
-[node name="SubmitSignInButton2" type="Button" parent="AuthUI/SignInPanel/SignInMargin/SignInVbox"]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
-text = "Acessar"
+[node name="Label" type="Label" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "asdasdasdasdasdasdasdasd"
 
-[node name="SubmitSignInButton3" type="Button" parent="AuthUI/SignInPanel/SignInMargin/SignInVbox"]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
-text = "Cliente
-"
-
-[node name="SubmitSignInButton4" type="Button" parent="AuthUI/SignInPanel/SignInMargin/SignInVbox"]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
-text = "Servidor"
-
-[connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/EmailSignInLine" to="AuthUI/SignInPanel" method="_on_sign_in_line_text_changed"]
-[connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI/SignInPanel" method="_on_sign_in_line_text_changed"]
-[connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI/SignInPanel" method="_on_submit_sign_in_button_pressed"]
-[connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton3" to="AuthUI/SignInPanel" method="_on_submit_sign_in_button_3_pressed"]
-[connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton4" to="AuthUI/SignInPanel" method="_on_submit_sign_in_button_4_pressed"]
+[connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton3" to="BootUI" method="_on_submit_sign_in_button_3_pressed"]
+[connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton4" to="BootUI" method="_on_submit_sign_in_button_4_pressed"]
+[connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/EmailSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
+[connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
+[connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
