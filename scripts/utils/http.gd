@@ -1,6 +1,10 @@
-class_name MyHTTPClient
-
 extends Node
+
+var http_request : HTTPRequest
+
+func _init():
+    http_request = HTTPRequest.new()
+    self.add_child(http_request)
 
 signal request_completed(status: String, response: String, method: int)
 

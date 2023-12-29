@@ -1,22 +1,24 @@
 extends PanelContainer
 
+
 @export_category('SignIn')
 @export var sign_in_panel : PanelContainer
 @export var sign_in_email_line : LineEdit
 @export var sign_in_pass_line : LineEdit
 @export var sign_in_submit_button : Button
 
+
 @export_category('RegExp')
 var email_regex = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
 
+
 @export_category('Backend')
-@export var api_endpoint : String
+@export var api_endpoint : String = 'http://127.0.0.1'
 
-var MyHttpClient = preload('res://scripts/utils/http.gd')
-var http_client = MyHttpClient.new()
 
-func _ready():
-    add_child(http_client)
+# var ConnectionStatusEnum = preload('res://scripts/utils/enums/auth/auth_enum.gd').new()
+var SignInModel: Script = preload('res://scripts/utils/models/auth/sign_in_model.gd')
+
 
 func _on_sign_in_line_text_changed(_new_text: String) -> void:
     var regex = RegEx.new()
@@ -30,97 +32,96 @@ func _on_sign_in_line_text_changed(_new_text: String) -> void:
     else:
         sign_in_submit_button.disabled = true
 
-func _on_login_button_pressed() -> void:
-    if sign_in_email_line.text.is_empty() and sign_in_email_line.text.is_empty():
-        _show_alert(invalid_email_message, AlertButtonType.CONFIRM)
-    else:
-        if multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
-            _on_request_sign_in.rpc_id(1, sign_in_email_line.text, sign_in_password_line.text)
-        else:
-            _show_alert(client_disconnected_from_server, AlertButtonType.CONFIRM)
 
-            @rpc('any_peer', 'call_remote', 'unreliable')
-func _on_request_sign_in(sign_in_email: String, sign_in_password: String) -> void:
-    sender_id = multiplayer.get_remote_sender_id()
+# Esta função é chamada quando o botão de envio de login é pressionado
+func _on_submit_sign_in_button_pressed() -> void:
+    # Verifica se o peer está conectado ao servidor
+    if multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
+
+        # Cria uma nova instância do modelo de autenticação
+        var sign_in_model = SignInModel.new(sign_in_email_line.text, sign_in_pass_line.text) as SignInModel
+        sign_in_model.email = sign_in_email_line.text
+        sign_in_model.password = sign_in_pass_line.text
+
+        # Faz uma chamada RPC para a função request_sign_in no servidor (peer 1)
+        _on_request_sign_in.rpc_id(1, sign_in_model.to_dict())
+    else:
+        print("O cliente não está conectado ao servidor")
+
+
+# Esta função é chamada no servidor quando um cliente faz uma solicitação de login
+@rpc('any_peer', 'call_remote', 'reliable')
+func _on_request_sign_in(sign_in_model_dict: Dictionary):
+    var sender_id = multiplayer.multiplayer_peer.get_unique_id()
+    
+    # Desabilita o botão de login para evitar que o usuário clique novamente
     sign_in_submit_button.disabled = true
+    
+    # Converte o dicionário de volta para um objeto SignInModel
+    var sign_in_model = SignInModel.from_dict(sign_in_model_dict) as SignInModel
+    
+    # Define a URL, cabeçalhos e corpo da solicitação HTTP
+    var url = api_endpoint + "/api/collections/users/auth-with-password"
+    var headers_dict = {"Content-Type": "application/json"}
+    var body = JSON.stringify(sign_in_model.to_dict())
 
-    var url = api_endpoint + '/api/collections/users/auth-with-password'
-    var headers = {"Content-Type": "application/json"}
-    var body = {
-        "identity": sign_in_email,
-        "password": sign_in_password,
-    }
+    var http_request = HTTPRequest.new()
+    self.add_child(http_request)
 
-    http_client.post_request(url, headers, JSON.stringify(body))
+    # Converte o Dictionary de cabeçalhos para um PackedStringArray
+    var headers = PackedStringArray()
+    for key in headers_dict:
+        headers.append('%s: %s' % [key, headers_dict[key]])
 
-    if not http_client.request_completed.is_connected(_on_request_sign_in_completed):
-        http_client.request_completed.connect(_on_request_sign_in_completed)
+    http_request.request(url, headers, HTTPClient.METHOD_POST, body)
 
-
-@rpc('authority', 'reliable')
-func _on_request_sign_in_completed(status: String, response_body: String, _method: int) -> void:
-    http_client.request_completed.disconnect(_on_request_sign_in_completed)
-
-    if status == "error":
-        var detailed_message = api_unknown_error_message
-        var json_parser = JSON.new()
-        var error = json_parser.parse(response_body)
-        if error == OK:
-            var json_dict = json_parser.get_data()
-
-            if json_dict is Dictionary:
-
-                if json_dict.has("message"):
-                    detailed_message = json_dict["message"]
-
-                if json_dict.has("data"):
-                    for key in json_dict["data"].keys():
-                        if json_dict["data"][key] is Dictionary and json_dict["data"][key].has("message"):
-                            detailed_message += "\n" + json_dict["data"][key]["message"]
-            else:
-                detailed_message = api_parsing_error_message
-
-        rpc_id(sender_id, '_on_request_sign_in_completed_response', ResponseType.ERROR, detailed_message)
-        print("Sending response to peer ID: ", multiplayer.get_remote_sender_id())
-    elif status != "success":
-        rpc_id(sender_id, '_on_request_sign_in_completed_response', ResponseType.NONE, api_connection_failure_message)
-        print("Sending response to peer ID: ", multiplayer.get_remote_sender_id())
+    var data = await http_request.request_completed as Array
+    if data[0] != OK:
+        print("Erro ao iniciar a solicitação HTTP: ", data[0])
     else:
-        var json_parser = JSON.new()
-        var response = json_parser.parse(response_body)
-        if response == OK:
-            var json_dict = json_parser.get_data()
-            if json_dict is Dictionary:
-                var token = json_dict.get("token", "")
-                var record = json_dict.get("record", {})
-                var id = record.get("id", "")
-                var email = record.get("email", "")
-                var access = record.get("access", "player")
-                var banned = record.get("banned", false)
+        var response_code = data[1]
+        var response_body = (data[3] as PackedByteArray).get_string_from_utf8()
 
-                token_manager.save_token(token)
-                token_manager.save_id(id)
-                token_manager.save_email(email)
-                token_manager.save_access(access)
-                token_manager.save_banned(banned)
+        # Faz uma chamada RPC para a função _on_request_sign_in_completed com o sender_id e a resposta HTTP como argumentos
+        _on_request_sign_in_completed.rpc_id(sender_id, response_code, response_body)
 
-        if token_manager.get_token() == "":
-            rpc_id(sender_id, '_on_request_sign_in_completed_response', ResponseType.ERROR, api_parsing_error_message)
-            print("Sending response to peer ID: ", multiplayer.get_remote_sender_id())
-        else:
-            rpc_id(sender_id, '_on_request_sign_in_completed_response', ResponseType.SUCCESS, api_authentication_success_message)
-            print("Sending response to peer ID: ", multiplayer.get_remote_sender_id())
-
+    # Reativa o botão de login
     sign_in_submit_button.disabled = false
 
 
-@rpc('authority', 'reliable')
-func _on_request_sign_in_completed_response(response: ResponseType, message: String) -> void:
-    match response:
-        ResponseType.SUCCESS:
-            auth_panel.visible = false
-            character_panel.visible = true
-        ResponseType.ERROR:
-            _show_alert(message, AlertButtonType.CONFIRM)
-        ResponseType.NONE:
-             _show_alert(message, AlertButtonType.GO_BACK)
+@rpc("authority", "reliable")
+func _on_request_sign_in_completed(sender_id: int, response_code: int, _response_body: String):
+
+    # Se o código de resposta for 200, envia uma mensagem de sucesso para o cliente
+    if response_code == 200:
+        _on_sign_in_response.rpc_id(sender_id, true, "Autenticação bem-sucedida")
+    # Se o código de resposta for diferente de 200, envia uma mensagem de erro para o cliente
+    else:
+        _on_sign_in_response.rpc_id(sender_id, false, "Erro na autenticação: " + str(response_code))
+
+    # Reativa o botão de login
+    sign_in_submit_button.disabled = false
+
+
+# Esta função é chamada quando o cliente recebe a resposta do servidor
+@rpc("authority", "reliable")
+func _on_sign_in_response(success: bool, message: String):
+    # Se a autenticação foi bem-sucedida, imprime uma mensagem de sucesso
+    if success:
+        print("Autenticação bem-sucedida")
+    # Se a autenticação falhou, imprime uma mensagem de erro
+    else:
+        print("Falha na autenticação: " + message)
+
+
+func _on_submit_sign_in_button_3_pressed():
+    var peer = ENetMultiplayerPeer.new()
+    peer.create_client('127.0.0.1', 8082)
+    multiplayer.multiplayer_peer = peer
+    print('cliente nessa porra')
+
+func _on_submit_sign_in_button_4_pressed():
+    var peer = ENetMultiplayerPeer.new()
+    peer.create_server(8082, 5)
+    multiplayer.multiplayer_peer = peer
+    sign_in_panel.visible = false

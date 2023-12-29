@@ -38,6 +38,7 @@ sign_in_panel = NodePath(".")
 sign_in_email_line = NodePath("SignInMargin/SignInVbox/EmailSignInLine")
 sign_in_pass_line = NodePath("SignInMargin/SignInVbox/PasswordSignInLine")
 sign_in_submit_button = NodePath("SignInMargin/SignInVbox/SubmitSignInButton")
+api_endpoint = null
 
 [node name="SignInMargin" type="MarginContainer" parent="AuthUI/SignInPanel"]
 layout_mode = 2
