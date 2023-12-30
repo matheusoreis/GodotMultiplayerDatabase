@@ -43,6 +43,9 @@ func _on_submit_sign_in_button_pressed() -> void:
         sign_in_model.email = sign_in_email_line.text
         sign_in_model.password = sign_in_pass_line.text
 
+        # Desabilita o botão de login para evitar que o usuário clique novamente
+        sign_in_submit_button.disabled = true
+
         # Faz uma chamada RPC para a função request_sign_in no servidor (peer 1)
         _on_request_sign_in.rpc_id(1, sign_in_model.to_dict())
     else:
@@ -53,9 +56,6 @@ func _on_submit_sign_in_button_pressed() -> void:
 @rpc('any_peer', 'call_remote', 'reliable')
 func _on_request_sign_in(sign_in_model_dict: Dictionary):
     var sender_id = multiplayer.get_remote_sender_id()
-
-    # Desabilita o botão de login para evitar que o usuário clique novamente
-    sign_in_submit_button.disabled = true
 
     # Converte o dicionário de volta para um objeto SignInModel
     var sign_in_model = SignInModel.from_dict(sign_in_model_dict) as SignInModel
@@ -83,32 +83,19 @@ func _on_request_sign_in(sign_in_model_dict: Dictionary):
         var response_body = (data[3] as PackedByteArray).get_string_from_utf8()
 
         # Passa sender_id como um argumento para _on_request_sign_in_completed
-        _on_request_sign_in_completed.rpc_id(sender_id, response_code, response_body, sender_id)
-
-    # Reativa o botão de login
-    sign_in_submit_button.disabled = false
+        _on_request_sign_in_completed.rpc_id(sender_id, response_code, response_body)
 
 
 @rpc("authority","reliable")
-func _on_request_sign_in_completed(response_code: int, _response_body: String, sender_id: int):
+func _on_request_sign_in_completed(response_code: int, _response_body: String):
 
     # Se o código de resposta for 200, envia uma mensagem de sucesso para o cliente
     if response_code == 200:
-        _on_sign_in_response.rpc_id(sender_id, true, "Autenticação bem-sucedida")
+        print("Autenticação bem-sucedida")
+
     # Se o código de resposta for diferente de 200, envia uma mensagem de erro para o cliente
     else:
-        _on_sign_in_response.rpc_id(sender_id, false, "Erro na autenticação: " + str(response_code))
+        print("Falha na autenticação: " + str(response_code))
 
     # Reativa o botão de login
     sign_in_submit_button.disabled = false
-
-
-# Esta função é chamada quando o cliente recebe a resposta do servidor
-@rpc("authority", 'call_local' ,"reliable")
-func _on_sign_in_response(success: bool, message: String):
-    # Se a autenticação foi bem-sucedida, imprime uma mensagem de sucesso
-    if success:
-        print("Autenticação bem-sucedida")
-    # Se a autenticação falhou, imprime uma mensagem de erro
-    else:
-        print("Falha na autenticação: " + message)

@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://bfdydk5u32oot"]
+
+[ext_resource type="Script" path="res://scripts/interface/components/AlertPanel.gd" id="1_jo8ei"]
+
+[node name="Alert" type="Control" node_paths=PackedStringArray("alert_ui", "alert_label")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jo8ei")
+alert_ui = NodePath(".")
+alert_label = NodePath("AlertUI/AlerMessageLabel")
+
+[node name="AlertUI" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="AlerMessageLabel" type="Label" parent="AlertUI"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 1
+vertical_alignment = 1
