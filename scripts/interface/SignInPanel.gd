@@ -14,10 +14,14 @@ var email_regex = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}
 
 @export_category('Backend')
 @export var api_endpoint : String = 'http://127.0.0.1:8090'
+@export var api_unknown_error_message : String = 'Unknown error!'
+@export var api_parsing_error_message : String = 'Error parsing server response!'
+@export var api_connection_failure_message : String = 'Failed to connect to the api server. Please check your internet connection and try again!'
+@export var api_authentication_success_message : String = 'User successfully authenticated to the api server!'
+@export var api_registration_success_message : String = 'User successfully registered on the api server!'
 
 
-# var ConnectionStatusEnum = preload('res://scripts/utils/enums/auth/auth_enum.gd').new()
-var SignInModelLocal: Script = preload('res://scripts/utils/models/auth/sign_in_model.gd')
+var character_data_loader = CharacterDataLoader.new()
 
 
 func _on_sign_in_line_text_changed(_new_text: String) -> void:
@@ -87,15 +91,48 @@ func _on_request_sign_in(sign_in_model_dict: Dictionary):
 
 
 @rpc("authority","reliable")
-func _on_request_sign_in_completed(response_code: int, _response_body: String):
+func _on_request_sign_in_completed(response_code: int, response_body: String):
 
-    # Se o código de resposta for 200, envia uma mensagem de sucesso para o cliente
-    if response_code == 200:
-        print("Autenticação bem-sucedida")
+    if response_code != 200:
+        var detailed_message = api_unknown_error_message
+        var json_parser = JSON.new()
+        var error = json_parser.parse(response_body)
+        if error == OK:
+            var json_dict = json_parser.get_data()
+            if json_dict is Dictionary:
 
-    # Se o código de resposta for diferente de 200, envia uma mensagem de erro para o cliente
+                if json_dict.has("message"):
+                    detailed_message = json_dict["message"]
+
+                if json_dict.has("data"):
+                    for key in json_dict["data"].keys():
+                        if json_dict["data"][key] is Dictionary and json_dict["data"][key].has("message"):
+                            detailed_message += "\n" + json_dict["data"][key]["message"]
+            else:
+                detailed_message = api_parsing_error_message
+
+        print(detailed_message)
+    elif response_code == 200:
+        var json_parser = JSON.new()
+        var error = json_parser.parse(response_body)
+        if error == OK:
+            var json_dict = json_parser.get_data()
+            if json_dict is Dictionary:
+                var sign_in_response = SignInResponseModel.from_dict(json_dict)
+                print("Token: ", sign_in_response.token)
+                print("Record: ", sign_in_response.record)
+
+                # Aqui chamamos a função para resgatar os personagens do usuário
+                var user_id = sign_in_response.record["id"]
+                var characters = character_data_loader.get_characters_for_user(user_id)
+                for character in characters:
+                    print("Personagem: ", character.name)
+            else:
+                print(api_parsing_error_message)
+        else:
+            print(api_parsing_error_message)
     else:
-        print("Falha na autenticação: " + str(response_code))
+        print(api_connection_failure_message)
 
     # Reativa o botão de login
     sign_in_submit_button.disabled = false

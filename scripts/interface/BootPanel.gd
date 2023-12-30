@@ -2,6 +2,7 @@ extends Control
 
 @export var boot_panel : Control
 @export var auth_panel : Control
+var load_database : CharacterDataLoader
 
 func _on_submit_sign_in_button_3_pressed():
     var peer = ENetMultiplayerPeer.new()
@@ -17,4 +18,6 @@ func _on_submit_sign_in_button_4_pressed():
     multiplayer.multiplayer_peer = peer
     boot_panel.visible = false
     auth_panel.visible = false
+    load_database = CharacterDataLoader.new()
+    await load_database.fetch_characters_from_api(self)
     queue_free()
