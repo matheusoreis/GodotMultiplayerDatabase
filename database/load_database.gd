@@ -34,12 +34,22 @@ func _on_Timer_timeout() -> void:
 
     var characters_to_keep := []
 
-    for i in range(characters_to_delete.size() - 1, -1, -1):
-        var character = characters_to_delete[i]
-        delete_character_from_api(parent_node, character["user_id"], character["character_id"])
-        characters_to_delete.erase(i)
+    for user_id in user_characters.keys():
+        if user_id in characters_to_delete:
+            for character in user_characters[user_id]:
+                if not is_character_deleted(user_id, character["id"]):
+                    delete_character_from_api(parent_node, user_id, character["id"])
+                    characters_to_keep.append(user_id)
+                else:
+                    print("Personagem já excluído: ", character["id"])
 
     characters_to_delete = characters_to_keep
+
+func is_character_deleted(user_id: String, character_id: String) -> bool:
+    for deleted_character in characters_to_delete:
+        if deleted_character["user_id"] == user_id and deleted_character["character_id"] == character_id:
+            return true
+    return false
 
 
 func fetch_characters_from_api(parent):
@@ -137,6 +147,7 @@ func delete_character_from_api(parent, user_id: String, character_id: String) ->
         print("Erro: O personagem não pertence ao usuário")
         return
 
+
     var url = api_endpoint + "/api/collections/characters/records/" + character_id
     var headers_dict = {"Content-Type": "application/json", "token": "ajshdwuqyezbxcbvzxbcvqytuqweyt"}
 
@@ -155,4 +166,5 @@ func delete_character_from_api(parent, user_id: String, character_id: String) ->
     else:
         print("Personagem deletado com sucesso: ", character_id)
         http_request.queue_free()
-
+        characters_to_delete.clear()
+        print(characters_to_delete)
