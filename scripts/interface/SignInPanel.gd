@@ -21,7 +21,10 @@ var email_regex = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}
 @export var api_registration_success_message : String = 'User successfully registered on the api server!'
 
 
+@export var server_node : Node
+
 var character_data_loader = CharacterDataLoader.new()
+var load_database : CharacterDataLoader
 
 
 func _on_sign_in_line_text_changed(_new_text: String) -> void:
@@ -122,11 +125,9 @@ func _on_request_sign_in_completed(response_code: int, response_body: String):
                 print("Token: ", sign_in_response.token)
                 print("Record: ", sign_in_response.record)
 
-                # Aqui chamamos a função para resgatar os personagens do usuário
                 var user_id = sign_in_response.record["id"]
-                var characters = character_data_loader.get_characters_for_user(user_id)
-                for character in characters:
-                    print("Personagem: ", character.name)
+                server_node.request_characters.rpc_id(1, user_id)
+
             else:
                 print(api_parsing_error_message)
         else:
@@ -136,3 +137,22 @@ func _on_request_sign_in_completed(response_code: int, response_body: String):
 
     # Reativa o botão de login
     sign_in_submit_button.disabled = false
+
+
+@rpc("authority","reliable")
+func send_characters(character_dicts: Array):
+    for character_dict in character_dicts:
+        var character = CharacterModel.from_dict(character_dict)
+        print("Personagem: ", character.name)
+
+    # Deleta o primeiro personagem após o login
+    if character_dicts.size() > 0:
+        var first_character = CharacterModel.from_dict(character_dicts[0])
+        delete_character(first_character.user, first_character.id)
+
+@rpc("authority","reliable")
+func confirm_delete_character(character_id: String) -> void:
+    print("Personagem deletado com sucesso: ", character_id)
+
+func delete_character(user_id: String, character_id: String) -> void:
+    server_node.request_delete_character.rpc_id(1, user_id, character_id)

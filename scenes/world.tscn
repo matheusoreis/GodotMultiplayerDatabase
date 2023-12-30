@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://45d1ywjto31w"]
+[gd_scene load_steps=5 format=3 uid="uid://45d1ywjto31w"]
 
 [ext_resource type="Script" path="res://scripts/interface/SignInPanel.gd" id="1_ofkox"]
 [ext_resource type="Script" path="res://scripts/interface/BootPanel.gd" id="1_tbiqa"]
+[ext_resource type="Script" path="res://scripts/interface/ServerUI.gd" id="3_ptbpr"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_786kf"]
 
@@ -13,7 +14,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BootUI" type="Control" parent="." node_paths=PackedStringArray("boot_panel", "auth_panel")]
+[node name="BootUI" type="Control" parent="." node_paths=PackedStringArray("boot_panel", "auth_panel", "server_ui")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,6 +24,7 @@ grow_vertical = 2
 script = ExtResource("1_tbiqa")
 boot_panel = NodePath(".")
 auth_panel = NodePath("../AuthUI")
+server_ui = NodePath("../ServerUI")
 
 [node name="SignInPanel" type="PanelContainer" parent="BootUI"]
 layout_mode = 1
@@ -62,7 +64,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Servidor"
 
-[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button")]
+[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "server_node")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -75,6 +77,7 @@ sign_in_panel = NodePath(".")
 sign_in_email_line = NodePath("SignInPanel/SignInMargin/SignInVbox/EmailSignInLine")
 sign_in_pass_line = NodePath("SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine")
 sign_in_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton")
+server_node = NodePath("../ServerUI")
 
 [node name="SignInPanel" type="PanelContainer" parent="AuthUI"]
 layout_mode = 1
@@ -115,15 +118,20 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Acessar"
 
-[node name="Label" type="Label" parent="."]
+[node name="ServerUI" type="Control" parent="." node_paths=PackedStringArray("auth_ui")]
 visible = false
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-text = "asdasdasdasdasdasdasdasd"
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_ptbpr")
+auth_ui = NodePath("../AuthUI")
 
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton3" to="BootUI" method="_on_submit_sign_in_button_3_pressed"]
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton4" to="BootUI" method="_on_submit_sign_in_button_4_pressed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/EmailSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
+[connection signal="visibility_changed" from="ServerUI" to="ServerUI" method="_on_visibility_changed"]
