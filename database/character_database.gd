@@ -215,6 +215,8 @@ func create_character_on_api(parent: Node, user_id: String, character_name: Stri
         print("Erro ao iniciar a solicitação HTTP: ", data[0])
         return CharacterModel.clean().to_dict()
     else:
+        # Se a solicitação POST for bem-sucedida, imprime uma mensagem de sucesso
+        # e adiciona o personagem ao dicionário de personagens.
         var response_body = (data[3] as PackedByteArray).get_string_from_utf8()
         var response = JSON.parse_string(response_body)
 
@@ -230,11 +232,12 @@ func create_character_on_api(parent: Node, user_id: String, character_name: Stri
 
             return created_character.to_dict()
 
-        elif data[1] == 400:
-            print("Falha ao criar o registro: ", response["message"])
-            return CharacterModel.clean().to_dict()
-        elif data[1] == 403:
-            print("Você não tem permissão para realizar esta solicitação: ", response["message"])
+        elif data[1] == 400 or data[1] == 403:
+            var error = ErrorModel.from_dict(JSON.parse_string(response_body).result)
+            var detailed_message = "Falha ao criar o registro: " + error.message
+            if error.data.has("message"):
+                detailed_message += "\n" + error.data["message"]
+            print(detailed_message)
             return CharacterModel.clean().to_dict()
 
     return CharacterModel.clean().to_dict()
