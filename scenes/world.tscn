@@ -65,7 +65,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Servidor"
 
-[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "server_node", "character_ui")]
+[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "character_ui", "server_node")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -78,8 +78,8 @@ sign_in_panel = NodePath(".")
 sign_in_email_line = NodePath("SignInPanel/SignInMargin/SignInVbox/EmailSignInLine")
 sign_in_pass_line = NodePath("SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine")
 sign_in_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton")
-server_node = NodePath("../ServerUI")
 character_ui = NodePath("../CharacterUI")
+server_node = NodePath("../ServerUI")
 
 [node name="SignInPanel" type="PanelContainer" parent="AuthUI"]
 layout_mode = 1
@@ -212,6 +212,7 @@ auth_ui = NodePath("../AuthUI")
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/StartServerButton" to="BootUI" method="_on_start_server_button_pressed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/EmailSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
+[connection signal="text_submitted" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_password_sign_in_line_text_submitted"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
 [connection signal="visibility_changed" from="CharacterUI" to="CharacterUI" method="_on_visibility_changed"]
 [connection signal="pressed" from="CharacterUI/NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterButton" to="CharacterUI" method="_on_new_character_button_pressed"]

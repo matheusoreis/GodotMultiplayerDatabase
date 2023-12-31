@@ -1,5 +1,6 @@
 extends Control
 
+
 @export_category('Backend')
 @export var api_endpoint: String = 'http://127.0.0.1:8090'
 @export var api_token: String = ''
@@ -10,7 +11,6 @@ extends Control
 @export var auth_ui: Control
 
 
-# Carregador de dados do personagem
 var character_database: CharacterDataLoader
 var account_database: AccountDatabase
 
@@ -41,7 +41,6 @@ func request_sign_in(sign_in_dict: Dictionary):
     else:
         # Erro: Converte o dicionário de resposta em um modelo ErrorModel
         var error_response = ErrorModel.from_dict(response_dict)
-        print("Erro ao fazer login: ", error_response.message)
         auth_ui.on_request_sign_in_completed.rpc_id(sender_id, false, error_response.to_dict())
 
 
@@ -81,8 +80,6 @@ func request_delete_character(user_id: String, character_id: String) -> void:
 func request_create_character(user_id: String, character_name: String) -> void:
     # Obtém o ID do remetente
     var sender_id = multiplayer.get_remote_sender_id()
-
-    print("request: " + character_name)
 
     # Cria um novo personagem na API
     var new_character = await character_database.create_character_on_api(self, user_id, character_name)
