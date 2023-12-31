@@ -6,7 +6,6 @@ extends Control
 @export var sign_in_email_line : LineEdit
 @export var sign_in_pass_line : LineEdit
 @export var sign_in_submit_button : Button
-@export var dlete_submit_button : Button
 
 
 @export_category('RegExp')
@@ -54,7 +53,6 @@ func _on_submit_sign_in_button_pressed() -> void:
 
         # Desabilita o botão de login para evitar que o usuário clique novamente
         sign_in_submit_button.disabled = true
-        dlete_submit_button.disabled = true
 
         # Faz uma chamada RPC para a função request_sign_in no servidor (peer 1)
         _on_request_sign_in.rpc_id(1, sign_in_model.to_dict())

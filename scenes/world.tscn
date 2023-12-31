@@ -65,7 +65,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Servidor"
 
-[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "dlete_submit_button", "server_node", "character_ui")]
+[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "server_node", "character_ui")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -78,7 +78,6 @@ sign_in_panel = NodePath(".")
 sign_in_email_line = NodePath("SignInPanel/SignInMargin/SignInVbox/EmailSignInLine")
 sign_in_pass_line = NodePath("SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine")
 sign_in_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton")
-dlete_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton2")
 server_node = NodePath("../ServerUI")
 character_ui = NodePath("../CharacterUI")
 
@@ -120,12 +119,6 @@ custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Acessar"
-
-[node name="SubmitSignInButton2" type="Button" parent="AuthUI/SignInPanel/SignInMargin/SignInVbox"]
-custom_minimum_size = Vector2(0, 45)
-layout_mode = 2
-theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
-text = "Apagar"
 
 [node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("character_ui", "server_ui", "character_hbox", "character_panel", "new_character_panel", "new_character_name_line", "new_character_button")]
 visible = false
@@ -211,6 +204,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_ptbpr")
+api_token = "ajshdwuqyezbxcbvzxbcvqytuqweyt"
 character_ui = NodePath("../CharacterUI")
 
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton3" to="BootUI" method="_on_submit_sign_in_button_3_pressed"]
@@ -218,7 +212,6 @@ character_ui = NodePath("../CharacterUI")
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/EmailSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
-[connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton2" to="AuthUI" method="_on_submit_sign_in_button_2_pressed"]
 [connection signal="visibility_changed" from="CharacterUI" to="CharacterUI" method="_on_visibility_changed"]
 [connection signal="pressed" from="CharacterUI/NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterButton" to="CharacterUI" method="_on_new_character_button_pressed"]
 [connection signal="visibility_changed" from="ServerUI" to="ServerUI" method="_on_visibility_changed"]
