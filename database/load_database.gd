@@ -8,48 +8,11 @@ class_name CharacterDataLoader
 
 
 var user_characters = {}
-var characters_to_delete = []
 var timer
 
 
-var parent_node
-
 func initialize(parent):
-    parent_node = parent
     await fetch_characters_from_api(parent)
-    timer = Timer.new()
-    timer.set_wait_time(10)  # 300 segundos = 5 minutos
-    timer.set_one_shot(false)
-    timer.connect("timeout",  _on_Timer_timeout)
-    parent.add_child(timer)
-    timer.start()
-
-
-func _on_Timer_timeout() -> void:
-    print("Tempo limite do temporizador atingido.")
-
-    if not characters_to_delete:
-        print("Nenhum personagem para excluir.")
-        return
-
-    var characters_to_keep := []
-
-    for user_id in user_characters.keys():
-        if user_id in characters_to_delete:
-            for character in user_characters[user_id]:
-                if not is_character_deleted(user_id, character["id"]):
-                    delete_character_from_api(parent_node, user_id, character["id"])
-                    characters_to_keep.append(user_id)
-                else:
-                    print("Personagem já excluído: ", character["id"])
-
-    characters_to_delete = characters_to_keep
-
-func is_character_deleted(user_id: String, character_id: String) -> bool:
-    for deleted_character in characters_to_delete:
-        if deleted_character["user_id"] == user_id and deleted_character["character_id"] == character_id:
-            return true
-    return false
 
 
 func fetch_characters_from_api(parent):
@@ -74,7 +37,7 @@ func fetch_characters_from_api(parent):
             return
         else:
             var response_body = (data[3] as PackedByteArray).get_string_from_utf8()
-            print("Resposta da API: ", response_body)  # Imprime a resposta da API
+            print("Resposta da API: ", response_body)
             var response = JSON.parse_string(response_body)
 
             var items = response["items"]
@@ -83,14 +46,14 @@ func fetch_characters_from_api(parent):
                 var character = CharacterModel.from_dict(item)
                 var user_id = character.user
 
-                print("Personagem: ", character.to_dict())  # Imprime o personagem
+                print("Personagem: ", character.to_dict())
 
                 if user_id in user_characters:
                     user_characters[user_id].append(character.to_dict())
                 else:
                     user_characters[user_id] = [character.to_dict()]
 
-            print("User IDs após carregar personagens: ", user_characters.keys())  # Imprime os user_id's após carregar os personagens
+            print("User IDs após carregar personagens: ", user_characters.keys())
 
             total_pages = response["totalPages"]
             page += 1
@@ -99,60 +62,43 @@ func fetch_characters_from_api(parent):
 func get_characters_for_user(user_id: String) -> Array:
     print("User ID fornecido: ", user_id)  # Imprime o user_id fornecido
     print("User IDs nos dados: ", user_characters.keys())  # Imprime os user_id's nos dados
+
     if user_id in user_characters:
         var user_characters_list = []
+        var characters_pending_deletion = []
+
         for character in user_characters[user_id]:
             # Verifica se o personagem está na lista de exclusões pendentes
-            var is_pending_deletion = false
-            for deleted_character in characters_to_delete:
-                if deleted_character["user_id"] == user_id and deleted_character["character_id"] == character["id"]:
-                    is_pending_deletion = true
-                    break
-            # Se o personagem não está na lista de exclusões pendentes, adiciona à lista de personagens do usuário
+            var is_pending_deletion = characters_pending_deletion.find(character["id"]) != -1
+
             if not is_pending_deletion:
                 user_characters_list.append(CharacterModel.from_dict(character))
+
         return user_characters_list
     else:
         print("Nenhum personagem encontrado para o usuário")
         return []
 
 
-#func create_character(user_id: String, character: CharacterModel) -> void:
-    #pass
-
-func delete_character(user_id: String, character_id: String) -> void:
-    # Remove o personagem da memória
-    if user_id in user_characters:
-        var temp_characters = user_characters[user_id].duplicate()
-        for i in range(len(temp_characters)):
-            if temp_characters[i]["id"] == character_id:
-                user_characters[user_id].erase(i)
-                print("Personagem deletado: ", character_id)
-                break
-
-    # Adiciona o personagem à lista de exclusões pendentes
-    characters_to_delete.append({ "user_id": user_id, "character_id": character_id })
-
-
 func delete_character_from_api(parent, user_id: String, character_id: String) -> void:
-    # Verifica se o personagem pertence ao usuário
     var character_belongs_to_user = false
+    var character_index = -1
     if user_id in user_characters:
-        for character in user_characters[user_id]:
-            if character["id"] == character_id:
+        for i in range(user_characters[user_id].size()):
+            if user_characters[user_id][i]["id"] == character_id:
                 character_belongs_to_user = true
+                character_index = i
                 break
 
     if not character_belongs_to_user:
         print("Erro: O personagem não pertence ao usuário")
         return
 
-
     var url = api_endpoint + "/api/collections/characters/records/" + character_id
     var headers_dict = {"Content-Type": "application/json", "token": "ajshdwuqyezbxcbvzxbcvqytuqweyt"}
 
     var http_request = HTTPRequest.new()
-    parent.add_child(http_request)  # Adiciona o objeto HTTPRequest à árvore de cena
+    parent.add_child(http_request)
 
     var headers = PackedStringArray()
     for key in headers_dict:
@@ -166,5 +112,5 @@ func delete_character_from_api(parent, user_id: String, character_id: String) ->
     else:
         print("Personagem deletado com sucesso: ", character_id)
         http_request.queue_free()
-        characters_to_delete.clear()
-        print(characters_to_delete)
+
+        user_characters[user_id].erase(character_index)

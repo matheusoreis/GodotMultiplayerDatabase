@@ -6,6 +6,7 @@ extends Control
 @export var sign_in_email_line : LineEdit
 @export var sign_in_pass_line : LineEdit
 @export var sign_in_submit_button : Button
+@export var dlete_submit_button : Button
 
 
 @export_category('RegExp')
@@ -25,6 +26,9 @@ var email_regex = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}
 
 var character_data_loader = CharacterDataLoader.new()
 var load_database : CharacterDataLoader
+
+
+var received_characters : Array = []
 
 
 func _on_sign_in_line_text_changed(_new_text: String) -> void:
@@ -52,6 +56,7 @@ func _on_submit_sign_in_button_pressed() -> void:
 
         # Desabilita o botão de login para evitar que o usuário clique novamente
         sign_in_submit_button.disabled = true
+        dlete_submit_button.disabled = true
 
         # Faz uma chamada RPC para a função request_sign_in no servidor (peer 1)
         _on_request_sign_in.rpc_id(1, sign_in_model.to_dict())
@@ -128,6 +133,8 @@ func _on_request_sign_in_completed(response_code: int, response_body: String):
                 var user_id = sign_in_response.record["id"]
                 server_node.request_characters.rpc_id(1, user_id)
 
+                dlete_submit_button.disabled = false
+
             else:
                 print(api_parsing_error_message)
         else:
@@ -145,14 +152,25 @@ func send_characters(character_dicts: Array):
         var character = CharacterModel.from_dict(character_dict)
         print("Personagem: ", character.name)
 
-    # Deleta o primeiro personagem após o login
-    if character_dicts.size() > 0:
-        var first_character = CharacterModel.from_dict(character_dicts[0])
-        delete_character(first_character.user, first_character.id)
 
 @rpc("authority","reliable")
 func confirm_delete_character(character_id: String) -> void:
-    print("Personagem deletado com sucesso: ", character_id)
+    pass
 
-func delete_character(user_id: String, character_id: String) -> void:
-    server_node.request_delete_character.rpc_id(1, user_id, character_id)
+
+@rpc("authority","reliable")
+func receive_characters(character_dicts: Array) -> void:
+    received_characters.clear()
+    for character_dict in character_dicts:
+        received_characters.append(character_dict)
+
+
+func _on_submit_sign_in_button_2_pressed() -> void:
+    if received_characters.size() > 0:
+        var user_id = received_characters[0]["user"]
+        var character_id = received_characters[0]["id"]
+        server_node.request_delete_character.rpc_id(1, user_id, character_id)
+        received_characters.pop_front()
+    else:
+        print("Nenhum personagem recebido para deletar.")
+

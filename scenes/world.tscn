@@ -64,7 +64,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Servidor"
 
-[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "server_node")]
+[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "dlete_submit_button", "server_node")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -77,6 +77,7 @@ sign_in_panel = NodePath(".")
 sign_in_email_line = NodePath("SignInPanel/SignInMargin/SignInVbox/EmailSignInLine")
 sign_in_pass_line = NodePath("SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine")
 sign_in_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton")
+dlete_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton2")
 server_node = NodePath("../ServerUI")
 
 [node name="SignInPanel" type="PanelContainer" parent="AuthUI"]
@@ -118,6 +119,12 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Acessar"
 
+[node name="SubmitSignInButton2" type="Button" parent="AuthUI/SignInPanel/SignInMargin/SignInVbox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
+text = "Apagar"
+
 [node name="ServerUI" type="Control" parent="." node_paths=PackedStringArray("auth_ui")]
 visible = false
 layout_mode = 1
@@ -134,4 +141,5 @@ auth_ui = NodePath("../AuthUI")
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/EmailSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
+[connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton2" to="AuthUI" method="_on_submit_sign_in_button_2_pressed"]
 [connection signal="visibility_changed" from="ServerUI" to="ServerUI" method="_on_visibility_changed"]
