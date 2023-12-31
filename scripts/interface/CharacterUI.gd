@@ -35,6 +35,7 @@ func confirm_delete_character(_character_id: String) -> void:
 
 @rpc("authority","reliable")
 func receive_characters(character_dicts: Array) -> void:
+    var sender_id = multiplayer.get_remote_sender_id()
     for character_dict in character_dicts:
         if character_dict not in received_characters:
             received_characters.append(character_dict)
@@ -48,6 +49,12 @@ func create_buttons(characters: Array) -> void:
         button.name = character.id
         button.text = character.name
         button.pressed.connect(_on_character_button_pressed.bind(button))
+        character_hbox.add_child(button)
+
+    if characters.size() < 5:
+        var button = Button.new() as Button
+        button.text = "Add New Character"
+        #button.pressed.connect(_on_add_new_character_button_pressed)
         character_hbox.add_child(button)
 
 func _on_character_button_pressed(button: Button) -> void:
