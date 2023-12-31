@@ -33,3 +33,6 @@ func to_dict() -> Dictionary:
 static func from_dict(dict: Dictionary) -> CharacterModel:
     var model = CharacterModel.new(dict["collectionId"], dict["collectionName"], dict["created"], dict["id"], dict["name"], dict["updated"], dict["user"])
     return model
+
+static func clean() -> CharacterModel:
+    return CharacterModel.new("", "", "", "", "", "", "")

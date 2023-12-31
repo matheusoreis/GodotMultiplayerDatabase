@@ -114,3 +114,50 @@ func delete_character_from_api(parent, user_id: String, character_id: String) ->
         http_request.queue_free()
 
         user_characters[user_id].erase(character_index)
+
+
+func create_character_on_api(parent, user_id: String, character_name: String) -> Dictionary:
+    var url = api_endpoint + "/api/collections/characters/records"
+    var headers_dict = {"Content-Type": "application/json", "token": "ajshdwuqyezbxcbvzxbcvqytuqweyt"}
+
+    var http_request = HTTPRequest.new()
+    parent.add_child(http_request)
+
+    var headers = PackedStringArray()
+    for key in headers_dict:
+        headers.append('%s: %s' % [key, headers_dict[key]])
+
+    var character = CharacterModel.new("", "", "", "", character_name, "", user_id)
+    var character_data = character.to_dict()
+
+    var body = JSON.stringify(character_data)
+
+    http_request.request(url, headers, HTTPClient.METHOD_POST, body)
+    var data = await http_request.request_completed as Array
+    if data[0] != OK:
+        print("Erro ao iniciar a solicitação HTTP: ", data[0])
+        return CharacterModel.clean().to_dict()
+    else:
+        var response_body = (data[3] as PackedByteArray).get_string_from_utf8()
+        var response = JSON.parse_string(response_body)
+
+        if data[1] == 200:
+            print("Personagem criado com sucesso: ", response["id"])
+            http_request.queue_free()
+
+            var created_character = CharacterModel.from_dict(response)
+            if user_id in user_characters:
+                user_characters[user_id].append(created_character.to_dict())
+            else:
+                user_characters[user_id] = [created_character.to_dict()]
+
+            return created_character.to_dict()
+
+        elif data[1] == 400:
+            print("Falha ao criar o registro: ", response["message"])
+            return CharacterModel.clean().to_dict()
+        elif data[1] == 403:
+            print("Você não tem permissão para realizar esta solicitação: ", response["message"])
+            return CharacterModel.clean().to_dict()
+
+    return CharacterModel.clean().to_dict()

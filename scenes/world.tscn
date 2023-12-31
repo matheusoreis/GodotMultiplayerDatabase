@@ -127,7 +127,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Apagar"
 
-[node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("character_ui", "character_hbox", "server_ui")]
+[node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("character_ui", "server_ui", "character_hbox", "character_panel", "new_character_panel", "new_character_name_line", "new_character_button")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -137,8 +137,12 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_x0yiw")
 character_ui = NodePath(".")
-character_hbox = NodePath("CharacterPanel/CharacterMargin/CharacterHbox")
 server_ui = NodePath("../ServerUI")
+character_hbox = NodePath("CharacterPanel/CharacterMargin/CharacterHbox")
+character_panel = NodePath("CharacterPanel")
+new_character_panel = NodePath("NewCharacterPanel")
+new_character_name_line = NodePath("NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterNameLine")
+new_character_button = NodePath("NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterButton")
 
 [node name="CharacterPanel" type="PanelContainer" parent="CharacterUI"]
 layout_mode = 1
@@ -156,9 +160,47 @@ grow_vertical = 2
 
 [node name="CharacterMargin" type="MarginContainer" parent="CharacterUI/CharacterPanel"]
 layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
 
 [node name="CharacterHbox" type="HBoxContainer" parent="CharacterUI/CharacterPanel/CharacterMargin"]
 layout_mode = 2
+
+[node name="NewCharacterPanel" type="PanelContainer" parent="CharacterUI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CharacterMargin" type="MarginContainer" parent="CharacterUI/NewCharacterPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="CharacterHbox" type="VBoxContainer" parent="CharacterUI/NewCharacterPanel/CharacterMargin"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+
+[node name="NewCharacterNameLine" type="LineEdit" parent="CharacterUI/NewCharacterPanel/CharacterMargin/CharacterHbox"]
+layout_mode = 2
+
+[node name="NewCharacterButton" type="Button" parent="CharacterUI/NewCharacterPanel/CharacterMargin/CharacterHbox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+text = "Criar"
 
 [node name="ServerUI" type="Control" parent="." node_paths=PackedStringArray("character_ui")]
 visible = false
@@ -178,4 +220,5 @@ character_ui = NodePath("../CharacterUI")
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton2" to="AuthUI" method="_on_submit_sign_in_button_2_pressed"]
 [connection signal="visibility_changed" from="CharacterUI" to="CharacterUI" method="_on_visibility_changed"]
+[connection signal="pressed" from="CharacterUI/NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterButton" to="CharacterUI" method="_on_new_character_button_pressed"]
 [connection signal="visibility_changed" from="ServerUI" to="ServerUI" method="_on_visibility_changed"]
