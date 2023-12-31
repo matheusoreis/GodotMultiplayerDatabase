@@ -68,35 +68,32 @@ func receive_characters(character_dicts: Array) -> void:
     update_buttons(received_characters)
 
 
-func create_buttons(characters: Array) -> void:
-    for i in range(characters.size()):
-        var character_select = character_select_ui.instantiate()
-        character_select.name = str(i)
+func create_character_button(i: int, character: Dictionary = {}) -> void:
+    var character_select = character_select_ui.instantiate()
+    character_select.name = str(i)
 
-        var select_character_label = character_select.get_node("CharacterLabel") as Label
-        var access_character_button = character_select.get_node("CharacterAccessButton") as Button
-        var delete_character_button = character_select.get_node("CharacterDeleteButton") as Button
+    var select_character_label = character_select.get_node("CharacterLabel") as Label
+    var access_character_button = character_select.get_node("CharacterAccessButton") as Button
+    var delete_character_button = character_select.get_node("CharacterDeleteButton") as Button
 
-        var character = CharacterModel.from_dict(characters[i])
-        select_character_label.text = character.name
-        delete_character_button.pressed.connect(_on_character_delete_button_pressed.bind(character_select, user_id, character.id))
-
-        character_hbox.add_child(character_select)
-
-    if characters.size() < 3:
-        var character_select = character_select_ui.instantiate()
-        character_select.name = str(characters.size())
-
-        var select_character_label = character_select.get_node("CharacterLabel") as Label
-        var access_character_button = character_select.get_node("CharacterAccessButton") as Button
-        var delete_character_button = character_select.get_node("CharacterDeleteButton") as Button
-
+    if character.is_empty():
         select_character_label.text = "Novo Personagem"
         delete_character_button.hide()
         access_character_button.text = "Criar"
         access_character_button.pressed.connect(_on_character_create_button_pressed)
+    else:
+        var character_model = CharacterModel.from_dict(character)
+        select_character_label.text = character_model.name
+        delete_character_button.pressed.connect(_on_character_delete_button_pressed.bind(character_select, user_id, character_model.id))
 
-        character_hbox.add_child(character_select)
+    character_hbox.add_child(character_select)
+
+func create_buttons(characters: Array) -> void:
+    for i in range(characters.size()):
+        create_character_button(i, characters[i])
+
+    if characters.size() < 3:
+        create_character_button(characters.size())
 
 
 func update_buttons(characters: Array) -> void:
