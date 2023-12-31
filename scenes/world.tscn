@@ -52,14 +52,14 @@ theme_override_constants/margin_bottom = 20
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 
-[node name="SubmitSignInButton3" type="Button" parent="BootUI/SignInPanel/SignInMargin/SignInVbox"]
+[node name="StartClientButton" type="Button" parent="BootUI/SignInPanel/SignInMargin/SignInVbox"]
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Cliente
 "
 
-[node name="SubmitSignInButton4" type="Button" parent="BootUI/SignInPanel/SignInMargin/SignInVbox"]
+[node name="StartServerButton" type="Button" parent="BootUI/SignInPanel/SignInMargin/SignInVbox"]
 custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
@@ -208,8 +208,8 @@ api_token = "ajshdwuqyezbxcbvzxbcvqytuqweyt"
 character_ui = NodePath("../CharacterUI")
 auth_ui = NodePath("../AuthUI")
 
-[connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton3" to="BootUI" method="_on_submit_sign_in_button_3_pressed"]
-[connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton4" to="BootUI" method="_on_submit_sign_in_button_4_pressed"]
+[connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/StartClientButton" to="BootUI" method="_on_start_client_button_pressed"]
+[connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/StartServerButton" to="BootUI" method="_on_start_server_button_pressed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/EmailSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
