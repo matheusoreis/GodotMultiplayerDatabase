@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://45d1ywjto31w"]
+[gd_scene load_steps=6 format=3 uid="uid://45d1ywjto31w"]
 
 [ext_resource type="Script" path="res://scripts/interface/SignInPanel.gd" id="1_ofkox"]
 [ext_resource type="Script" path="res://scripts/interface/BootPanel.gd" id="1_tbiqa"]
 [ext_resource type="Script" path="res://scripts/interface/ServerUI.gd" id="3_ptbpr"]
+[ext_resource type="Script" path="res://scripts/interface/CharacterUI.gd" id="3_x0yiw"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_786kf"]
 
@@ -64,7 +65,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Servidor"
 
-[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "dlete_submit_button", "server_node")]
+[node name="AuthUI" type="Control" parent="." node_paths=PackedStringArray("sign_in_panel", "sign_in_email_line", "sign_in_pass_line", "sign_in_submit_button", "dlete_submit_button", "server_node", "character_ui")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -79,6 +80,7 @@ sign_in_pass_line = NodePath("SignInPanel/SignInMargin/SignInVbox/PasswordSignIn
 sign_in_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton")
 dlete_submit_button = NodePath("SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton2")
 server_node = NodePath("../ServerUI")
+character_ui = NodePath("../CharacterUI")
 
 [node name="SignInPanel" type="PanelContainer" parent="AuthUI"]
 layout_mode = 1
@@ -125,7 +127,40 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Apagar"
 
-[node name="ServerUI" type="Control" parent="." node_paths=PackedStringArray("auth_ui")]
+[node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("character_ui", "character_hbox", "server_ui")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_x0yiw")
+character_ui = NodePath(".")
+character_hbox = NodePath("CharacterPanel/CharacterMargin/CharacterHbox")
+server_ui = NodePath("../ServerUI")
+
+[node name="CharacterPanel" type="PanelContainer" parent="CharacterUI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CharacterMargin" type="MarginContainer" parent="CharacterUI/CharacterPanel"]
+layout_mode = 2
+
+[node name="CharacterHbox" type="HBoxContainer" parent="CharacterUI/CharacterPanel/CharacterMargin"]
+layout_mode = 2
+
+[node name="ServerUI" type="Control" parent="." node_paths=PackedStringArray("character_ui")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -134,7 +169,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_ptbpr")
-auth_ui = NodePath("../AuthUI")
+character_ui = NodePath("../CharacterUI")
 
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton3" to="BootUI" method="_on_submit_sign_in_button_3_pressed"]
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton4" to="BootUI" method="_on_submit_sign_in_button_4_pressed"]
@@ -142,4 +177,5 @@ auth_ui = NodePath("../AuthUI")
 [connection signal="text_changed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/PasswordSignInLine" to="AuthUI" method="_on_sign_in_line_text_changed"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton" to="AuthUI" method="_on_submit_sign_in_button_pressed"]
 [connection signal="pressed" from="AuthUI/SignInPanel/SignInMargin/SignInVbox/SubmitSignInButton2" to="AuthUI" method="_on_submit_sign_in_button_2_pressed"]
+[connection signal="visibility_changed" from="CharacterUI" to="CharacterUI" method="_on_visibility_changed"]
 [connection signal="visibility_changed" from="ServerUI" to="ServerUI" method="_on_visibility_changed"]
