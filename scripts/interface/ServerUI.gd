@@ -1,5 +1,7 @@
 extends Control
 
+@export_category('Backend')
+@export var endpoint : String = 'http://127.0.0.1:8090'
 
 @export var character_ui : Node
 
