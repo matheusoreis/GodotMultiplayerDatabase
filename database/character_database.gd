@@ -11,9 +11,9 @@ var user_characters = {}
 
 
 # Inicializa a classe com o endpoint da API e busca os personagens.
-func initialize(parent: Node, api_endpoint: String, api_token: String):
-    self.api_endpoint = api_endpoint
-    self.api_token = api_token
+func initialize(parent: Node, endpoint: String, token: String):
+    self.api_endpoint = endpoint
+    self.api_token = token
     await fetch_characters_from_api(parent)
 
 
