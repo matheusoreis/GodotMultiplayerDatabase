@@ -15,7 +15,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BootUI" type="Control" parent="." node_paths=PackedStringArray("boot_panel", "auth_panel", "server_ui")]
+[node name="BootUI" type="Control" parent="." node_paths=PackedStringArray("server_ui", "boot_ui", "auth_ui")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,9 +23,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_tbiqa")
-boot_panel = NodePath(".")
-auth_panel = NodePath("../AuthUI")
 server_ui = NodePath("../ServerUI")
+boot_ui = NodePath(".")
+auth_ui = NodePath("../AuthUI")
 
 [node name="SignInPanel" type="PanelContainer" parent="BootUI"]
 layout_mode = 1
@@ -120,7 +120,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Acessar"
 
-[node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("character_ui", "server_ui", "character_hbox", "character_panel", "new_character_panel", "new_character_name_line", "new_character_button")]
+[node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("server_ui", "character_ui", "character_panel", "character_hbox", "new_character_panel", "new_character_name_line", "new_character_button")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -129,10 +129,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_x0yiw")
-character_ui = NodePath(".")
 server_ui = NodePath("../ServerUI")
-character_hbox = NodePath("CharacterPanel/CharacterMargin/CharacterHbox")
+character_ui = NodePath(".")
 character_panel = NodePath("CharacterPanel")
+character_hbox = NodePath("CharacterPanel/CharacterMargin/CharacterHbox")
 new_character_panel = NodePath("NewCharacterPanel")
 new_character_name_line = NodePath("NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterNameLine")
 new_character_button = NodePath("NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterButton")

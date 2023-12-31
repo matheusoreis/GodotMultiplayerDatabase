@@ -14,9 +14,6 @@ var email_regex = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}
 
 @export_category('UI')
 @export var character_ui: Control
-
-
-@export_category('ServerUI')
 @export var server_node : Node
 
 
@@ -37,7 +34,7 @@ func validate_credentials() -> bool:
 
 
 # Esta função é chamada quando o usuário altera o texto dos LineEdits
-func _on_sign_in_line_text_changed(_new_text: String) -> void:
+func _on_sign_in_line_text_changed(_newText: String) -> void:
     # Se o email e a senha são válidos, o botão de envio é habilitado
     if validate_credentials():
         sign_in_submit_button.disabled = false
@@ -47,7 +44,7 @@ func _on_sign_in_line_text_changed(_new_text: String) -> void:
 
 
 # Esta função é chamada quando o usuário pressiona Enter no campo de senha
-func _on_password_sign_in_line_text_submitted(new_text: String) -> void:
+func _on_password_sign_in_line_text_submitted(_newText: String) -> void:
     # Se o email e a senha são válidos, chama a função que é executada quando o botão de envio é pressionado
     if validate_credentials():
         _on_submit_sign_in_button_pressed()

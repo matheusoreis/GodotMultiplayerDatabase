@@ -1,12 +1,14 @@
 extends Control
 
-@export var boot_panel: Control
-@export var auth_panel: Control
+@export_category('UI')
 @export var server_ui: Control
+@export var boot_ui: Control
+@export var auth_ui: Control
 
 
 @export_category('Client Configuration')
 @export var host: String = '127.0.0.1'
+
 
 @export_category('Server Configuration')
 @export var port: int = 8082
@@ -24,8 +26,8 @@ func _on_start_client_button_pressed() -> void:
     multiplayer.multiplayer_peer = peer
 
     # Altera a visibilidade dos painéis
-    boot_panel.visible = false
-    auth_panel.visible = true
+    boot_ui.visible = false
+    auth_ui.visible = true
     server_ui.visible = false
 
     # Libera o nó da tree
@@ -44,8 +46,8 @@ func _on_start_server_button_pressed() -> void:
     multiplayer.multiplayer_peer = peer
 
     # Altera a visibilidade dos painéis
-    boot_panel.visible = false
-    auth_panel.visible = false
+    boot_ui.visible = false
+    auth_ui.visible = false
     server_ui.visible = true
 
     # Libera o nó da tree
