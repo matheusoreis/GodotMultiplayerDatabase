@@ -1,0 +1,71 @@
+[
+  {
+    "id": "_pb_users_auth_",
+    "name": "users",
+    "type": "auth",
+    "system": false,
+    "schema": [],
+    "indexes": [],
+    "listRule": "id = @request.auth.id",
+    "viewRule": "id = @request.auth.id",
+    "createRule": "",
+    "updateRule": "id = @request.auth.id",
+    "deleteRule": "id = @request.auth.id",
+    "options": {
+      "allowEmailAuth": true,
+      "allowOAuth2Auth": false,
+      "allowUsernameAuth": true,
+      "exceptEmailDomains": null,
+      "manageRule": null,
+      "minPasswordLength": 8,
+      "onlyEmailDomains": null,
+      "onlyVerified": false,
+      "requireEmail": true
+    }
+  },
+  {
+    "id": "4azs03x0jxul9qw",
+    "name": "characters",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "cifvmtli",
+        "name": "user",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": false,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": null
+        }
+      },
+      {
+        "system": false,
+        "id": "dojlc2zm",
+        "name": "name",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": null,
+          "max": null,
+          "pattern": ""
+        }
+      }
+    ],
+    "indexes": [],
+    "listRule": "@request.headers.token = \"ajshdwuqyezbxcbvzxbcvqytuqweyt\"",
+    "viewRule": "@request.headers.token = \"ajshdwuqyezbxcbvzxbcvqytuqweyt\"",
+    "createRule": "@request.headers.token = \"ajshdwuqyezbxcbvzxbcvqytuqweyt\"",
+    "updateRule": "@request.headers.token = \"ajshdwuqyezbxcbvzxbcvqytuqweyt\"",
+    "deleteRule": "@request.headers.token = \"ajshdwuqyezbxcbvzxbcvqytuqweyt\"",
+    "options": {}
+  }
+]

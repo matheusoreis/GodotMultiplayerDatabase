@@ -1,21 +1,18 @@
 extends Control
 
-
 class_name CharacterDataLoader
 
 
-@export var api_endpoint : String = 'http://127.0.0.1:8090'
-
-
+var api_endpoint : String
 var user_characters = {}
-var timer
 
 
-func initialize(parent):
+func initialize(parent: Node, endpoint : String):
+    api_endpoint = endpoint
     await fetch_characters_from_api(parent)
 
 
-func fetch_characters_from_api(parent):
+func fetch_characters_from_api(parent: Node):
     var url = api_endpoint + "/api/collections/characters/records"
     var headers_dict = {"Content-Type": "application/json", "token": "ajshdwuqyezbxcbvzxbcvqytuqweyt"}
 
@@ -80,7 +77,7 @@ func get_characters_for_user(user_id: String) -> Array:
         return []
 
 
-func delete_character_from_api(parent, user_id: String, character_id: String) -> void:
+func delete_character_from_api(parent: Node, user_id: String, character_id: String) -> void:
     var character_belongs_to_user = false
     var character_index = -1
     if user_id in user_characters:
@@ -116,7 +113,7 @@ func delete_character_from_api(parent, user_id: String, character_id: String) ->
         user_characters[user_id].erase(character_index)
 
 
-func create_character_on_api(parent, user_id: String, character_name: String) -> Dictionary:
+func create_character_on_api(parent: Node, user_id: String, character_name: String) -> Dictionary:
     var regex = RegEx.new()
     regex.compile("^[a-zA-Z0-9]*$")  # Só permite letras e números
 
