@@ -126,19 +126,10 @@ func _on_request_sign_in_completed(response_code: int, response_body: String):
             if json_dict is Dictionary:
                 var sign_in_response = SignInResponseModel.from_dict(json_dict)
 
-                var user_id = sign_in_response.record["id"]
+                var user_id = sign_in_response.record.id
                 character_ui.set_user_id(user_id)
                 sign_in_panel.visible = false
                 character_ui.visible = true
-
-                #var sign_in_response = SignInResponseModel.from_dict(json_dict)
-                #print("Token: ", sign_in_response.token)
-                #print("Record: ", sign_in_response.record)
-#
-                #var user_id = sign_in_response.record["id"]
-                #server_node.request_characters.rpc_id(1, user_id)
-#
-                #dlete_submit_button.disabled = false
 
             else:
                 print(api_parsing_error_message)
