@@ -1,2 +1,4 @@
 # Godot 4+ specific ignores
 .godot/
+.backend/pb_data/
+.backend/pb_migrations/
