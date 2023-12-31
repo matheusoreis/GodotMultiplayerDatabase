@@ -9,7 +9,7 @@ extends Control
 @export var new_character_name_line: LineEdit
 @export var new_character_button: Button
 
-@export var character_select_ui = preload('res://scenes/components/character_select.tscn')
+@export var character_select_ui = preload('res://scenes/components/character_slot_ui.tscn')
 
 
 var user_id : String

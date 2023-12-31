@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bfdydk5u32oot"]
 
-[ext_resource type="Script" path="res://scripts/interface/components/AlertPanel.gd" id="1_jo8ei"]
+[ext_resource type="Script" path="res://scripts/interface/components/alert_ui.gd" id="1_jo8ei"]
 
 [node name="Alert" type="Control" node_paths=PackedStringArray("alert_ui", "alert_label")]
 layout_mode = 3
