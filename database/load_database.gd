@@ -117,6 +117,20 @@ func delete_character_from_api(parent, user_id: String, character_id: String) ->
 
 
 func create_character_on_api(parent, user_id: String, character_name: String) -> Dictionary:
+    var regex = RegEx.new()
+    regex.compile("^[a-zA-Z0-9]*$")  # Só permite letras e números
+
+    if not regex.search(character_name):
+        print("Erro: O nome do personagem só pode conter letras e números")
+        return CharacterModel.clean().to_dict()
+
+    # Verifica se já existe um personagem com o mesmo nome em qualquer conta
+    for uid in user_characters:
+        for character in user_characters[uid]:
+            if character["name"].to_lower() == character_name.to_lower():
+                print("Erro: Já existe um personagem com o mesmo nome")
+                return CharacterModel.clean().to_dict()
+
     var url = api_endpoint + "/api/collections/characters/records"
     var headers_dict = {"Content-Type": "application/json", "token": "ajshdwuqyezbxcbvzxbcvqytuqweyt"}
 

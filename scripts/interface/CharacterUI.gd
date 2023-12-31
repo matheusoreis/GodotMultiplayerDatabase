@@ -47,8 +47,10 @@ func confirm_delete_character(_character_id: String) -> void:
 
 @rpc("authority","reliable")
 func confirm_create_character(new_character_dict: Dictionary) -> void:
-    if new_character_dict.is_empty():
-        print("O dicionário do novo personagem está vazio.")
+    print("Novo personagem: ", new_character_dict)  # Imprime o novo personagem
+
+    if new_character_dict.is_empty() or new_character_dict["id"] == "":
+        print("O dicionário do novo personagem está vazio ou o ID do personagem está vazio.")
         return
 
     character_panel.visible = true
@@ -87,6 +89,7 @@ func create_character_button(i: int, character: Dictionary = {}) -> void:
         delete_character_button.pressed.connect(_on_character_delete_button_pressed.bind(character_select, user_id, character_model.id))
 
     character_hbox.add_child(character_select)
+
 
 func create_buttons(characters: Array) -> void:
     for i in range(characters.size()):

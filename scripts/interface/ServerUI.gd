@@ -32,5 +32,5 @@ func request_delete_character(user_id: String, character_id: String) -> void:
 func request_create_character(user_id: String, character_name: String) -> void:
     var sender_id = multiplayer.get_remote_sender_id()
     var new_character = await load_database.create_character_on_api(self, user_id, character_name)
-    if new_character != null:
+    if new_character != null and not new_character.is_empty():
         character_ui.confirm_create_character.rpc_id(sender_id, new_character)
