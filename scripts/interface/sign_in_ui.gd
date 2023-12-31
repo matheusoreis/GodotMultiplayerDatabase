@@ -48,93 +48,31 @@ func _on_submit_sign_in_button_pressed() -> void:
 
         # Cria uma nova instância do modelo de autenticação
         var sign_in_model = SignInModel.new(sign_in_email_line.text, sign_in_pass_line.text) as SignInModel
-        sign_in_model.email = sign_in_email_line.text
-        sign_in_model.password = sign_in_pass_line.text
 
         # Desabilita o botão de login para evitar que o usuário clique novamente
         sign_in_submit_button.disabled = true
 
+        print(sign_in_model.to_dict())
+
         # Faz uma chamada RPC para a função request_sign_in no servidor (peer 1)
-        _on_request_sign_in.rpc_id(1, sign_in_model.to_dict())
+        server_node.request_sign_in.rpc_id(1, sign_in_model.to_dict())
     else:
         print("O cliente não está conectado ao servidor")
 
 
-# Esta função é chamada no servidor quando um cliente faz uma solicitação de login
-@rpc('any_peer', 'call_remote', 'reliable')
-func _on_request_sign_in(sign_in_model_dict: Dictionary):
-    var sender_id = multiplayer.get_remote_sender_id()
-
-    # Converte o dicionário de volta para um objeto SignInModel
-    var sign_in_model = SignInModel.from_dict(sign_in_model_dict) as SignInModel
-
-    # Define a URL, cabeçalhos e corpo da solicitação HTTP
-    var url = api_endpoint + "/api/collections/users/auth-with-password"
-    var headers_dict = {"Content-Type": "application/json"}
-    var body = JSON.stringify(sign_in_model.to_dict())
-
-    var http_request = HTTPRequest.new()
-    self.add_child(http_request)
-
-    # Converte o Dictionary de cabeçalhos para um PackedStringArray
-    var headers = PackedStringArray()
-    for key in headers_dict:
-        headers.append('%s: %s' % [key, headers_dict[key]])
-
-    http_request.request(url, headers, HTTPClient.METHOD_POST, body)
-
-    var data = await http_request.request_completed as Array
-    if data[0] != OK:
-        print("Erro ao iniciar a solicitação HTTP: ", data[0])
-    else:
-        var response_code = data[1]
-        var response_body = (data[3] as PackedByteArray).get_string_from_utf8()
-
-        # Passa sender_id como um argumento para _on_request_sign_in_completed
-        _on_request_sign_in_completed.rpc_id(sender_id, response_code, response_body)
-
-
 @rpc("authority","reliable")
-func _on_request_sign_in_completed(response_code: int, response_body: String):
-
-    if response_code != 200:
-        var detailed_message = api_unknown_error_message
-        var json_parser = JSON.new()
-        var error = json_parser.parse(response_body)
-        if error == OK:
-            var json_dict = json_parser.get_data()
-            if json_dict is Dictionary:
-
-                if json_dict.has("message"):
-                    detailed_message = json_dict["message"]
-
-                if json_dict.has("data"):
-                    for key in json_dict["data"].keys():
-                        if json_dict["data"][key] is Dictionary and json_dict["data"][key].has("message"):
-                            detailed_message += "\n" + json_dict["data"][key]["message"]
-            else:
-                detailed_message = api_parsing_error_message
-
-        print(detailed_message)
-    elif response_code == 200:
-        var json_parser = JSON.new()
-        var error = json_parser.parse(response_body)
-        if error == OK:
-            var json_dict = json_parser.get_data()
-            if json_dict is Dictionary:
-                var sign_in_response = SignInResponseModel.from_dict(json_dict)
-
-                var user_id = sign_in_response.record.id
-                character_ui.set_user_id(user_id)
-                sign_in_panel.visible = false
-                character_ui.visible = true
-
-            else:
-                print(api_parsing_error_message)
-        else:
-            print(api_parsing_error_message)
+func on_request_sign_in_completed(success: bool, response: Dictionary):
+    if success:
+        var response_model = SignInResponseModel.from_dict(response)
+        print("Login bem-sucedido")
+        character_ui.set_user_id(response_model.record.id)
+        sign_in_panel.visible = false
+        character_ui.visible = true
+        print("Token: ", response_model.token)
+        print("ID do usuário: ", response_model.record.id)
     else:
-        print(api_connection_failure_message)
+        var error_response = ErrorModel.from_dict(response)
+        print("Erro ao fazer login: ", error_response.message)
 
     # Reativa o botão de login
     sign_in_submit_button.disabled = false

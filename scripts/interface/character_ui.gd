@@ -119,4 +119,5 @@ func _on_character_create_button_pressed() -> void:
 
 
 func _on_new_character_button_pressed() -> void:
-     server_ui.request_create_character.rpc_id(1, user_id, new_character_name_line.text)
+    print(new_character_name_line.text)
+    server_ui.request_create_character.rpc_id(1, user_id, new_character_name_line.text)

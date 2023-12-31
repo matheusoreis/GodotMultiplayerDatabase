@@ -1,4 +1,4 @@
-extends Control
+extends RefCounted
 
 # Classe CharacterDataLoader
 # Esta classe é responsável por carregar dados de personagens de uma API.
@@ -163,6 +163,8 @@ func delete_character_from_api(parent: Node, user_id: String, character_id: Stri
 # @param character_name: O nome do personagem a ser criado.
 func create_character_on_api(parent: Node, user_id: String, character_name: String) -> Dictionary:
 
+    print("api: " + user_id)
+
     # Cria um novo objeto RegEx e compila uma expressão regular que só permite letras e números.
     var regex = RegEx.new()
     regex.compile("^[a-zA-Z0-9]*$")
@@ -233,7 +235,7 @@ func create_character_on_api(parent: Node, user_id: String, character_name: Stri
             return created_character.to_dict()
 
         elif data[1] == 400 or data[1] == 403:
-            var error = ErrorModel.from_dict(JSON.parse_string(response_body).result)
+            var error = ErrorModel.from_dict(JSON.parse_string(response_body))
             var detailed_message = "Falha ao criar o registro: " + error.message
             if error.data.has("message"):
                 detailed_message += "\n" + error.data["message"]
