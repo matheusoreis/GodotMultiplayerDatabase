@@ -8,7 +8,7 @@ var api_endpoint : String
 
 
 # Inicializa a classe com o endpoint da API.
-func initialize(parent: Node, apiEndpoint: String):
+func initialize(apiEndpoint: String):
     self.api_endpoint = apiEndpoint
 
 
@@ -65,5 +65,3 @@ func sign_in(parent: Node, signInDict: Dictionary) -> Dictionary:
                     detailed_message += "\n" + key + ": " + error.data[key]["message"]
             print(detailed_message)
             return error.to_dict()
-
-    return ErrorModel.clean().to_dict()

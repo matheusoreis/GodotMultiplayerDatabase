@@ -20,7 +20,7 @@ func _on_visibility_changed() -> void:
     account_database = AccountDatabase.new() as AccountDatabase
     character_database = CharacterDataLoader.new() as CharacterDataLoader
 
-    account_database.initialize(self, api_endpoint)
+    account_database.initialize(api_endpoint)
     character_database.initialize(self, api_endpoint, api_token)
 
 
