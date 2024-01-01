@@ -1,6 +1,8 @@
 extends RefCounted
 
+
 class_name CharacterModel
+
 
 var collectionId: String
 var collectionName: String
@@ -52,4 +54,4 @@ static func from_dict(dict: Dictionary) -> CharacterModel:
 
 # Função estática para criar um objeto CharacterModel vazio
 static func clean() -> CharacterModel:
-    return CharacterModel.new()
+    return CharacterModel.new() as CharacterModel

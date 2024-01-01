@@ -7,12 +7,12 @@ class_name CharacterDataLoader
 
 var api_endpoint : String
 var api_token: String
-var user_characters = {}
+var user_characters = {} as Dictionary
 
 
 # Inicializa a classe com o endpoint da API e busca os personagens.
-func initialize(parent: Node, endpoint: String, token: String):
-    self.api_endpoint = endpoint
+func initialize(parent: Node, apiEndpoint: String, token: String):
+    self.api_endpoint = apiEndpoint
     self.api_token = token
     await fetch_characters_from_api(parent)
 
@@ -73,22 +73,22 @@ func fetch_characters_from_api(parent: Node):
 
 # Retorna uma lista de personagens para um usuário específico.
 # @param user_id: O ID do usuário para o qual buscar os personagens.
-func get_characters_for_user(user_id: String) -> Array:
+func get_characters_for_user(userId: String) -> Array:
 
-    # Verifica se o user_id fornecido está presente no dicionário user_characters.
-    if user_id in user_characters:
+    # Verifica se o userId fornecido está presente no dicionário user_characters.
+    if userId in user_characters:
         # Inicializa uma lista para armazenar os personagens do usuário.
         var user_characters_list = []
 
         # Itera sobre os personagens do usuário.
-        for character in user_characters[user_id]:
+        for character in user_characters[userId]:
             # Adiciona o personagem à lista de personagens do usuário.
             user_characters_list.append(CharacterModel.from_dict(character))
 
         # Retorna a lista de personagens do usuário.
         return user_characters_list
     else:
-        # Se o user_id fornecido não estiver presente no dicionário
+        # Se o userId fornecido não estiver presente no dicionário
         # user_characters
         print("Nenhum personagem encontrado para o usuário")
         return []
@@ -96,24 +96,28 @@ func get_characters_for_user(user_id: String) -> Array:
 
 # Deleta um personagem da API e atualiza o dicionário de personagens (memória do servidor).
 # @param parent: O nó pai ao qual o HTTPRequest será adicionado.
-# @param user_id: O ID do usuário ao qual o personagem pertence.
-# @param character_id: O ID do personagem a ser deletado.
-func delete_character_from_api(parent: Node, user_id: String, character_id: String) -> void:
+# @param userId: O ID do usuário ao qual o personagem pertence.
+# @param characterDict: O dicionário do personagem a ser deletado.
+func delete_character_from_api(parent: Node, userId: String, characterDict: Dictionary) -> void:
+    var character_to_delete = CharacterModel.from_dict(characterDict) as CharacterModel
+
     # Inicializa uma variável para verificar se o personagem pertence ao usuário.
     var character_belongs_to_user = false
 
     # Inicializa uma variável para armazenar o índice do personagem no array de personagens do usuário.
     var character_index = -1
 
-    # Verifica se o user_id fornecido está presente no dicionário de personagens.
-    if user_id in user_characters:
+    # Verifica se o userId fornecido está presente no dicionário de personagens.
+    if userId in user_characters:
 
         # Itera sobre os personagens do usuário.
-        for i in range(user_characters[user_id].size()):
+        for i in range(user_characters[userId].size()):
+            # Converte o dicionário do personagem para um objeto CharacterModel
+            var character = CharacterModel.from_dict(user_characters[userId][i]) as CharacterModel
 
-            # Se o ID do personagem corresponder ao character_id fornecido,
+            # Se o ID do personagem corresponder ao characterId fornecido,
             # define character_belongs_to_user como true e armazena o índice do personagem.
-            if user_characters[user_id][i]["id"] == character_id:
+            if character.id == character_to_delete.id:
                 character_belongs_to_user = true
                 character_index = i
                 break
@@ -124,7 +128,7 @@ func delete_character_from_api(parent: Node, user_id: String, character_id: Stri
         return
 
     # Define a URL para a solicitação DELETE.
-    var url = api_endpoint + "/api/collections/characters/records/" + character_id
+    var url = api_endpoint + "/api/collections/characters/records/" + character_to_delete.id
 
     # Define os cabeçalhos da requisição com o token necessário para a api validar.
     var headers_dict = {"Content-Type": "application/json", "token": api_token}
@@ -151,33 +155,31 @@ func delete_character_from_api(parent: Node, user_id: String, character_id: Stri
     else:
         # Se a solicitação DELETE for bem-sucedida, remove o personagem do
         # dicionário de personagens.
-        print("Personagem deletado com sucesso: ", character_id)
+        print("Personagem deletado com sucesso: ", character_to_delete.id)
+        user_characters[userId].remove_at(character_index)
         http_request.queue_free()
-        user_characters[user_id].erase(character_index)
 
 
 
 # Cria um novo personagem na API e atualiza o dicionário de personagens (memória do servidor).
 # @param parent: O nó pai ao qual o HTTPRequest será adicionado.
-# @param user_id: O ID do usuário que está criando o personagem.
-# @param character_name: O nome do personagem a ser criado.
-func create_character_on_api(parent: Node, user_id: String, character_name: String) -> Dictionary:
-
-    print("api: " + user_id)
+# @param userId: O ID do usuário que está criando o personagem.
+# @param characterName: O nome do personagem a ser criado.
+func create_character_on_api(parent: Node, userId: String, characterName: String) -> Dictionary:
 
     # Cria um novo objeto RegEx e compila uma expressão regular que só permite letras e números.
     var regex = RegEx.new()
     regex.compile("^[a-zA-Z0-9]*$")
 
      # Verifica se o nome do personagem fornecido é válido.
-    if not regex.search(character_name):
+    if not regex.search(characterName):
         print("Erro: O nome do personagem só pode conter letras e números")
         return CharacterModel.clean().to_dict()
 
     # Verifica se já existe um personagem com o mesmo nome.
     for uid in user_characters:
         for character in user_characters[uid]:
-            if character["name"].to_lower() == character_name.to_lower():
+            if character["name"].to_lower() == characterName.to_lower():
                 print("Erro: Já existe um personagem com o mesmo nome")
                 return CharacterModel.clean().to_dict()
 
@@ -197,7 +199,7 @@ func create_character_on_api(parent: Node, user_id: String, character_name: Stri
         headers.append('%s: %s' % [key, headers_dict[key]])
 
     # Cria um novo objeto CharacterModel com os dados do personagem fornecidos.
-    var character = CharacterModel.new("", "", "", "", character_name, "", user_id)
+    var character = CharacterModel.new("", "", "", "", characterName, "", userId)
 
     # Converte o objeto CharacterModel em um dicionário.
     var character_data = character.to_dict()
@@ -227,10 +229,10 @@ func create_character_on_api(parent: Node, user_id: String, character_name: Stri
             http_request.queue_free()
 
             var created_character = CharacterModel.from_dict(response)
-            if user_id in user_characters:
-                user_characters[user_id].append(created_character.to_dict())
+            if userId in user_characters:
+                user_characters[userId].append(created_character.to_dict())
             else:
-                user_characters[user_id] = [created_character.to_dict()]
+                user_characters[userId] = [created_character.to_dict()]
 
             return created_character.to_dict()
 

@@ -72,7 +72,7 @@ func request_delete_character(userId: String, characterDict: Dictionary) -> void
     var character_to_delete = CharacterModel.from_dict(characterDict) as CharacterModel
 
     # Deleta o personagem da API
-    character_database.delete_character_from_api(self, userId, character_to_delete.id)
+    character_database.delete_character_from_api(self, userId, characterDict)
 
     # Confirma a exclusão para a interface do usuário
     character_ui.confirm_delete_character.rpc_id(sender_id, character_to_delete.to_dict())
