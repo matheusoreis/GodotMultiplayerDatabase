@@ -120,7 +120,7 @@ layout_mode = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_786kf")
 text = "Acessar"
 
-[node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("server_ui", "character_ui", "character_panel", "character_hbox", "new_character_panel", "new_character_name_line", "new_character_button")]
+[node name="CharacterUI" type="Control" parent="." node_paths=PackedStringArray("server_ui", "character_ui", "character_panel", "character_hbox", "new_character_panel", "new_character_name_line", "new_character_button", "world_scene")]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -136,6 +136,7 @@ character_hbox = NodePath("CharacterPanel/CharacterMargin/CharacterHbox")
 new_character_panel = NodePath("NewCharacterPanel")
 new_character_name_line = NodePath("NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterNameLine")
 new_character_button = NodePath("NewCharacterPanel/CharacterMargin/CharacterHbox/NewCharacterButton")
+world_scene = NodePath("..")
 
 [node name="CharacterPanel" type="PanelContainer" parent="CharacterUI"]
 layout_mode = 1
@@ -207,6 +208,12 @@ script = ExtResource("3_ptbpr")
 api_token = "ajshdwuqyezbxcbvzxbcvqytuqweyt"
 character_ui = NodePath("../CharacterUI")
 auth_ui = NodePath("../AuthUI")
+
+[node name="Level" type="Node" parent="."]
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://scenes/components/player.tscn")
+spawn_path = NodePath("../Level")
 
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/StartClientButton" to="BootUI" method="_on_start_client_button_pressed"]
 [connection signal="pressed" from="BootUI/SignInPanel/SignInMargin/SignInVbox/StartServerButton" to="BootUI" method="_on_start_server_button_pressed"]

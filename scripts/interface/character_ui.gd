@@ -14,7 +14,12 @@ extends Control
 @export var new_character_button: Button
 
 @export_category('Character Slot')
-@export var character_slot_ui = preload('res://scenes/components/character_slot_ui.tscn')
+@export var character_slot_ui: PackedScene = preload('res://scenes/components/character_slot_ui.tscn')
+var local_peer = 0
+
+
+@export_category('Player')
+@export var world_scene: Node
 
 
 var user_id : String
@@ -115,6 +120,7 @@ func create_character_slot(index: int, characterDict: Dictionary = {}) -> void:
 
         # Conecta o sinal de pressionado do botão de exclusão à função _on_character_delete_button_pressed
         delete_character_slot_button.pressed.connect(_on_character_delete_button_pressed.bind(character_slot, user_id, characterDict))
+        access_character_slot_button.pressed.connect(_on_access_character_button_pressed)
 
     # Adiciona o slot de personagem como um filho do contêiner HBox
     character_hbox.add_child(character_slot)
@@ -177,3 +183,25 @@ func _on_character_create_button_pressed() -> void:
 func _on_new_character_button_pressed() -> void:
     # Faz uma chamada RPC para solicitar a criação de um novo personagem
     server_ui.request_create_character.rpc_id(1, user_id, new_character_name_line.text)
+
+
+func _on_access_character_button_pressed() -> void:
+    add_peer.rpc_id(1, multiplayer.get_unique_id())
+
+@rpc('any_peer', 'call_remote', 'reliable')
+func add_peer(peer_id):
+    for id in multiplayer.get_peers():
+        add_player(id)
+
+    # Spawn the local player unless this is a dedicated server export.
+    if not OS.has_feature("dedicated_server"):
+        add_player(1)
+
+
+
+#@rpc('authority', 'reliable')
+#func add_peer_response(peer_id):
+    #var scene = load("res://scenes/components/player.tscn")
+    #var player = scene.instantiate()
+    #player.name = str(peer_id)
+    #world_scene.add_child.call_deferred(player)

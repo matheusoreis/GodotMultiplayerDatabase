@@ -39,7 +39,6 @@ func request_sign_in(signInDict: Dictionary):
         var response = SignInResponseModel.from_dict(response_dict) as SignInResponseModel
         auth_ui.on_request_sign_in_completed.rpc_id(sender_id, true, response.to_dict())
     else:
-        # Erro: Converte o dicionário de resposta em um modelo ErrorModel
         var error_response = ErrorModel.from_dict(response_dict) as ErrorModel
         auth_ui.on_request_sign_in_completed.rpc_id(sender_id, false, error_response.to_dict())
 
